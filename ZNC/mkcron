@@ -1,0 +1,18 @@
+#!/bin/sh
+pwd > auto-znc
+dir=$(cat auto-znc)
+echo "* * * * * $dir/auto-znc >/dev/null 2>&1" > cronjobs
+crontab cronjobs
+rm -f cronjobs
+crontab -l | grep auto-znc
+echo "#!/bin/sh
+if test -r $dir/znc.pid; then
+pid=\$(cat $dir/znc.pid)
+if \$(kill -CHLD \$pid >/dev/null 2>&1)
+then
+exit 0
+fi
+fi
+cd $dir
+znc &>/dev/null" > auto-znc
+chmod 755 auto-znc
